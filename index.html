@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrein - Seu Portal de Fitness e Saúde</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>NUTREIN</span>
+            </div>
+            <div class="nav-menu">
+                <button class="nav-btn active" data-section="home">
+                    <i class="fas fa-home"></i>
+                    Início
+                </button>
+                <button class="nav-btn" data-section="chat">
+                    <i class="fas fa-comments"></i>
+                    Chat IA
+                </button>
+                <button class="nav-btn" data-section="professionals">
+                    <i class="fas fa-users"></i>
+                    Profissionais
+                </button>
+                <button class="nav-btn" data-section="exercises">
+                    <i class="fas fa-dumbbell"></i>
+                    Exercícios
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <!-- Hero Section -->
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>Bem-vindo ao <span class="highlight">Nutrein</span></h1>
+                    <p>Seu portal completo para fitness, saúde e bem-estar. Conecte-se com profissionais, descubra exercícios e converse com nossa IA especializada.</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" data-section="chat">
+                            <i class="fas fa-comments"></i>
+                            Chat com IA
+                        </button>
+                        <button class="btn btn-secondary" data-section="professionals">
+                            <i class="fas fa-users"></i>
+                            Profissionais
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Chat Inteligente</h3>
+                    <p>Converse com nossa IA especializada em fitness e nutrição para tirar dúvidas e receber orientações personalizadas.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Profissionais</h3>
+                    <p>Encontre nutricionistas e treinadores especializados em diversos esportes para te ajudar a alcançar seus objetivos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h3>Exercícios</h3>
+                    <p>Biblioteca completa de exercícios organizados por grupo muscular com instruções detalhadas.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section id="chat" class="section">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2><i class="fas fa-comments"></i> Chat com IA - Assistente de Fitness</h2>
+                    <p>Faça perguntas sobre exercícios, nutrição e saúde</p>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-welcome">
+                        <i class="fas fa-heart"></i>
+                        <p>Olá! Sou seu assistente de fitness. Como posso te ajudar hoje?</p>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Digite sua pergunta sobre fitness...">
+                    <button id="sendBtn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Professionals Section -->
+        <section id="professionals" class="section">
+            <div class="section-header">
+                <h2>Nossos Profissionais</h2>
+                <p>Especialistas qualificados para te ajudar a alcançar seus objetivos</p>
+            </div>
+            <div class="professionals-grid" id="professionalsGrid">
+                <!-- Professionals will be loaded by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Exercises Section -->
+        <section id="exercises" class="section">
+            <div class="section-header">
+                <h2>Biblioteca de Exercícios</h2>
+                <p>Exercícios organizados por grupo muscular</p>
+            </div>
+            <div class="exercises-grid" id="exercisesGrid">
+                <!-- Exercises will be loaded by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>Nutrein</span>
+            </div>
+            <p>Transformando vidas através do fitness e bem-estar</p>
+            <p class="footer-copy">© 2025 Nutrein. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
