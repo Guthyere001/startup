@@ -1,7 +1,7 @@
 // Data
 const professionals = [
   {
-    name: "Dr. Ana Silva",
+    name: "Dra. Ana Silva",
     specialty: "Nutricionista",
     experience: "8 anos",
     rating: 4.9,
@@ -11,25 +11,29 @@ const professionals = [
     name: "Marcus David",
     specialty: "Treinador de Futebol/Futsal",
     experience: "12 anos",
+    rating: 5.0,
     description: "Ex-jogador profissional, especialista em técnica e tática",
   },
   {
     name: "Romulo Jardel",
     specialty: "Treinadora de Vôlei",
     experience: "6 anos",
-    description: "Campeã estadual, foco em fundamentos e estratégia",
+    rating: 4.7,
+    description: "Campeão estadual, foco em fundamentos e estratégia",
   },
   {
     name: "Roberto Lima",
     specialty: "Treinador de Basquete",
     experience: "10 anos",
+    rating: 4.9,
     description: "Especialista em desenvolvimento de jovens talentos",
   },
   {
-    name: "Nyck Jhonson",
+    name: "Nyck Johnson",
     specialty: "Treinadora de Handebol",
     experience: "7 anos",
-    description: "Técnica certificada, foco em condicionamento físico",
+    rating: 5.0,
+    description: "Técnico certificado, para formação de futuros atletas",
   },
 ]
 
