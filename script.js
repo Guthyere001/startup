@@ -35,6 +35,13 @@ const professionals = [
     rating: 5.0,
     description: "Técnico certificado, para formação de futuros atletas",
   },
+  {
+    name: "Rafael Star",
+    specialty: "Professor de Boxe",
+    experience: "5 anos",
+    rating: 5.0,
+    description: "Professor especializado em treinar e desenvolver lutadores de alto nivel",
+  },
 ]
 
 const exercises = {
@@ -57,6 +64,8 @@ const aiResponses = {
   peso: "Para ganhar massa muscular, combine treino de força com alimentação rica em proteínas. Para perder peso, crie um déficit calórico com exercícios e dieta balanceada.",
   default:
     "Ótima pergunta! Para te ajudar melhor, posso dar dicas sobre exercícios, nutrição, treinos ou objetivos específicos. O que você gostaria de saber?",
+  musculacao:
+    "Para um bom treino de musculação deve ser avaliado sua condição fisica e mental para começar a treinar, além disso deve ser avaliado agravantes como: hernias, lesões e machucados!"
 }
 
 // Auth state management
