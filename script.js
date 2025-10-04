@@ -70,6 +70,258 @@ const aiResponses = {
 
 // Auth state management
 let currentUser = null
+// Enhanced Data Management System
+class NutreimDatabase {
+  constructor() {
+    this.init()
+  }
+
+  init() {
+    // Initialize database structure if not exists
+    if (!this.getUsers()) {
+      this.setUsers([])
+    }
+    if (!this.getProfiles()) {
+      this.setProfiles({})
+    }
+    if (!this.getChatHistory()) {
+      this.setChatHistory({})
+    }
+    
+    // Create backup on initialization
+    this.createBackup()
+  }
+
+  // User Management
+  getUsers() {
+    try {
+      return JSON.parse(localStorage.getItem('nutreimUsers') || '[]')
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error)
+      return []
+    }
+  }
+
+  setUsers(users) {
+    try {
+      localStorage.setItem('nutreimUsers', JSON.stringify(users))
+      return true
+    } catch (error) {
+      console.error('Erro ao salvar usuários:', error)
+      return false
+    }
+  }
+
+  // User Profiles (extended data)
+  getProfiles() {
+    try {
+      return JSON.parse(localStorage.getItem('nutreimProfiles') || '{}')
+    } catch (error) {
+      console.error('Erro ao carregar perfis:', error)
+      return {}
+    }
+  }
+
+  setProfiles(profiles) {
+    try {
+      localStorage.setItem('nutreimProfiles', JSON.stringify(profiles))
+      return true
+    } catch (error) {
+      console.error('Erro ao salvar perfis:', error)
+      return false
+    }
+  }
+
+  // Chat History
+  getChatHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('nutreimChatHistory') || '{}')
+    } catch (error) {
+      console.error('Erro ao carregar histórico de chat:', error)
+      return {}
+    }
+  }
+
+  setChatHistory(history) {
+    try {
+      localStorage.setItem('nutreimChatHistory', JSON.stringify(history))
+      return true
+    } catch (error) {
+      console.error('Erro ao salvar histórico de chat:', error)
+      return false
+    }
+  }
+
+  // User Operations
+  createUser(userData) {
+    const users = this.getUsers()
+    
+    // Validate user data
+    if (!this.validateUserData(userData)) {
+      return { success: false, error: 'Dados inválidos' }
+    }
+    
+    // Check if user already exists
+    if (users.find(u => u.email === userData.email)) {
+      return { success: false, error: 'Email já cadastrado' }
+    }
+    
+    // Create user with enhanced structure
+    const newUser = {
+      id: this.generateUserId(),
+      name: userData.name.trim(),
+      email: userData.email.toLowerCase().trim(),
+      password: userData.password, // In production, this should be hashed
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isActive: true,
+      loginCount: 0,
+      lastLogin: null
+    }
+    
+    users.push(newUser)
+    
+    if (this.setUsers(users)) {
+      // Create user profile
+      this.createUserProfile(newUser.id)
+      return { success: true, user: newUser }
+    }
+    
+    return { success: false, error: 'Erro ao salvar usuário' }
+  }
+
+  createUserProfile(userId) {
+    const profiles = this.getProfiles()
+    profiles[userId] = {
+      userId,
+      preferences: {
+        theme: 'light',
+        notifications: true
+      },
+      fitness: {
+        goals: [],
+        currentLevel: 'beginner',
+        favoriteExercises: []
+      },
+      createdAt: new Date().toISOString()
+    }
+    this.setProfiles(profiles)
+  }
+
+  authenticateUser(email, password) {
+    const users = this.getUsers()
+    const user = users.find(u => 
+      u.email === email.toLowerCase().trim() && 
+      u.password === password &&
+      u.isActive
+    )
+    
+    if (user) {
+      // Update login stats
+      user.loginCount = (user.loginCount || 0) + 1
+      user.lastLogin = new Date().toISOString()
+      user.updatedAt = new Date().toISOString()
+      this.setUsers(users)
+      
+      return { success: true, user }
+    }
+    
+    return { success: false, error: 'Credenciais inválidas' }
+  }
+
+  validateUserData(userData) {
+    if (!userData.name || userData.name.trim().length < 2) return false
+    if (!userData.email || !this.isValidEmail(userData.email)) return false
+    if (!userData.password || userData.password.length < 6) return false
+    return true
+  }
+
+  isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  generateUserId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2)
+  }
+
+  // Chat Operations
+  saveChatMessage(userId, message, sender) {
+    const chatHistory = this.getChatHistory()
+    if (!chatHistory[userId]) {
+      chatHistory[userId] = []
+    }
+    
+    chatHistory[userId].push({
+      id: this.generateUserId(),
+      message,
+      sender, // 'user' or 'ai'
+      timestamp: new Date().toISOString()
+    })
+    
+    // Keep only last 50 messages per user
+    if (chatHistory[userId].length > 50) {
+      chatHistory[userId] = chatHistory[userId].slice(-50)
+    }
+    
+    this.setChatHistory(chatHistory)
+  }
+
+  getUserChatHistory(userId) {
+    const chatHistory = this.getChatHistory()
+    return chatHistory[userId] || []
+  }
+
+  // Backup and Recovery
+  createBackup() {
+    try {
+      const backup = {
+        users: this.getUsers(),
+        profiles: this.getProfiles(),
+        chatHistory: this.getChatHistory(),
+        timestamp: new Date().toISOString(),
+        version: '1.0'
+      }
+      localStorage.setItem('nutreimBackup', JSON.stringify(backup))
+    } catch (error) {
+      console.error('Erro ao criar backup:', error)
+    }
+  }
+
+  restoreFromBackup() {
+    try {
+      const backup = JSON.parse(localStorage.getItem('nutreimBackup') || '{}')
+      if (backup.users) {
+        this.setUsers(backup.users)
+        this.setProfiles(backup.profiles || {})
+        this.setChatHistory(backup.chatHistory || {})
+        return true
+      }
+    } catch (error) {
+      console.error('Erro ao restaurar backup:', error)
+    }
+    return false
+  }
+
+  // Statistics
+  getStats() {
+    const users = this.getUsers()
+    const profiles = this.getProfiles()
+    const chatHistory = this.getChatHistory()
+    
+    return {
+      totalUsers: users.length,
+      activeUsers: users.filter(u => u.isActive).length,
+      totalProfiles: Object.keys(profiles).length,
+      totalChatMessages: Object.values(chatHistory).reduce((total, msgs) => total + msgs.length, 0),
+      lastBackup: localStorage.getItem('nutreimBackup') ? 
+        JSON.parse(localStorage.getItem('nutreimBackup')).timestamp : null
+    }
+  }
+}
+
+// Initialize database
+const nutreimDB = new NutreimDatabase()
 
 // Initialize app
 document.addEventListener("DOMContentLoaded", () => {
@@ -89,6 +341,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const navButton = document.querySelector(`[data-section="${sectionId}"]`)
     if (navButton && navButton.classList.contains('nav-btn')) {
       navButton.classList.add("active")
+    }
+    
+    // Load section-specific data
+    handleSectionChange(sectionId)
+  }
+  
+  function handleSectionChange(sectionId) {
+    switch(sectionId) {
+      case 'chat':
+        if (currentUser) {
+          loadChatHistory()
+        }
+        break
+      case 'professionals':
+        // Could load personalized recommendations here
+        break
+      case 'exercises':
+        // Could load user's favorite exercises here
+        break
     }
   }
 
@@ -170,6 +441,37 @@ function loadExercises() {
 
 // Chat Setup
 function setupChat() {
+// Load chat history for logged user
+function loadChatHistory() {
+  if (!currentUser) return
+  
+  const chatMessages = document.getElementById("chatMessages")
+  const history = nutreimDB.getUserChatHistory(currentUser.id)
+  
+  // Clear current messages except welcome
+  const existingMessages = chatMessages.querySelectorAll('.message')
+  existingMessages.forEach(msg => msg.remove())
+  
+  // Load history messages
+  history.forEach(msg => {
+    addMessage(msg.message, msg.sender)
+  })
+  
+  // If no history, keep welcome message
+  if (history.length === 0) {
+    const welcome = chatMessages.querySelector('.chat-welcome')
+    if (!welcome) {
+      const welcomeDiv = document.createElement('div')
+      welcomeDiv.className = 'chat-welcome'
+      welcomeDiv.innerHTML = `
+        <i class="fas fa-heart"></i>
+        <p>Olá ${currentUser.name.split(' ')[0]}! Sou seu assistente de fitness. Como posso te ajudar hoje?</p>
+      `
+      chatMessages.appendChild(welcomeDiv)
+    }
+  }
+}
+
   const chatInput = document.getElementById("chatInput")
   const sendBtn = document.getElementById("sendBtn")
   const chatMessages = document.getElementById("chatMessages")
@@ -180,6 +482,12 @@ function setupChat() {
 
     // Add user message
     addMessage(message, "user")
+    
+    // Save user message to database if logged in
+    if (currentUser) {
+      nutreimDB.saveChatMessage(currentUser.id, message, 'user')
+    }
+    
     chatInput.value = ""
 
     // Show typing indicator
@@ -190,6 +498,11 @@ function setupChat() {
       hideTypingIndicator()
       const response = getAIResponse(message)
       addMessage(response, "ai")
+      
+      // Save AI response to database if logged in
+      if (currentUser) {
+        nutreimDB.saveChatMessage(currentUser.id, response, 'ai')
+      }
     }, 1500)
   }
 
@@ -280,8 +593,31 @@ document.addEventListener("click", (e) => {
 function checkUserSession() {
   const savedUser = localStorage.getItem('nutreimUser')
   if (savedUser) {
-    currentUser = JSON.parse(savedUser)
-    updateUIForLoggedUser()
+    try {
+      const userData = JSON.parse(savedUser)
+      
+      // Validate if user still exists in database
+      const users = nutreimDB.getUsers()
+      const existingUser = users.find(u => u.id === userData.id && u.isActive)
+      
+      if (existingUser) {
+        currentUser = existingUser
+        updateUIForLoggedUser()
+        
+        // Update stored user data if needed
+        if (JSON.stringify(userData) !== JSON.stringify(existingUser)) {
+          localStorage.setItem('nutreimUser', JSON.stringify(existingUser))
+        }
+      } else {
+        // User no longer exists or is inactive, clear session
+        localStorage.removeItem('nutreimUser')
+        currentUser = null
+      }
+    } catch (error) {
+      console.error('Erro ao verificar sessão:', error)
+      localStorage.removeItem('nutreimUser')
+      currentUser = null
+    }
   }
 }
 
@@ -289,17 +625,38 @@ function updateUIForLoggedUser() {
   const navMenu = document.querySelector('.nav-menu')
   const userSection = document.getElementById('userSection')
   const userName = document.getElementById('userName')
+  const authButton = document.querySelector('[data-section="auth"]')
   
   if (currentUser) {
-    navMenu.style.display = 'none'
+    // Manter navegação visível mas esconder botão "Conta"
+    navMenu.style.display = 'flex'
+    if (authButton) {
+      authButton.style.display = 'none'
+    }
     userSection.style.display = 'flex'
     userName.textContent = currentUser.name.split(' ')[0]
+    
+    // Atualizar texto do botão de conta se necessário
+    updateAuthButtonText()
+    
+    // Carregar histórico de chat se estiver na seção de chat
+    const chatSection = document.getElementById('chat')
+    if (chatSection && chatSection.classList.contains('active')) {
+      loadChatHistory()
+    }
   } else {
     navMenu.style.display = 'flex'
+    if (authButton) {
+      authButton.style.display = 'flex'
+    }
     userSection.style.display = 'none'
   }
 }
 
+function updateAuthButtonText() {
+  // Esta função pode ser usada para futuras melhorias na UI
+  // Por exemplo, mudar o texto do botão quando logado
+}
 function logout() {
   currentUser = null
   localStorage.removeItem('nutreimUser')
@@ -366,8 +723,8 @@ function handleLogin() {
 
   clearErrors()
 
-  // Basic validation
-  if (!validateEmail(email)) {
+  // Basic validation using new system
+  if (!nutreimDB.isValidEmail(email)) {
     showFieldError('loginEmailError', 'Por favor, insira um e-mail válido')
     return
   }
@@ -377,25 +734,38 @@ function handleLogin() {
     return
   }
 
-  // Simulate authentication
-  const users = JSON.parse(localStorage.getItem('nutreimUsers') || '[]')
-  const user = users.find(u => u.email === email && u.password === password)
+  // Use enhanced authentication
+  const result = nutreimDB.authenticateUser(email, password)
 
-  if (user) {
-    currentUser = user
+  if (result.success) {
+    currentUser = result.user
     if (rememberMe) {
-      localStorage.setItem('nutreimUser', JSON.stringify(user))
+      localStorage.setItem('nutreimUser', JSON.stringify(result.user))
     }
     updateUIForLoggedUser()
-    showMessage(`Bem-vindo de volta, ${user.name}!`, 'success')
     
-    // Switch to home section
+    // Show personalized welcome message
+    const firstName = result.user.name.split(' ')[0]
+    const loginCount = result.user.loginCount
+    let welcomeMsg = `Bem-vindo de volta, ${firstName}! 🎉`
+    
+    if (loginCount === 1) {
+      welcomeMsg = `Bem-vindo pela primeira vez, ${firstName}! 🌟`
+    } else if (loginCount > 10) {
+      welcomeMsg = `Ótimo te ver novamente, ${firstName}! 💪 (${loginCount}º acesso)`
+    }
+    
+    showMessage(welcomeMsg, 'success')
+    
+    // Switch to home section with navigation reset
     setTimeout(() => {
       document.querySelectorAll('.section').forEach(section => section.classList.remove('active'))
       document.getElementById('home').classList.add('active')
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'))
+      document.querySelector('[data-section="home"]').classList.add('active')
     }, 1500)
   } else {
-    showMessage('E-mail ou senha incorretos!', 'error')
+    showMessage(result.error || 'E-mail ou senha incorretos!', 'error')
   }
 }
 
@@ -438,36 +808,35 @@ function handleRegister() {
 
   if (!isValid) return
 
-  // Check if user already exists
-  const users = JSON.parse(localStorage.getItem('nutreimUsers') || '[]')
-  if (users.find(u => u.email === email)) {
-    showFieldError('registerEmailError', 'Este e-mail já está cadastrado')
-    return
-  }
-
-  // Create new user
-  const newUser = {
-    id: Date.now(),
+  // Use enhanced user creation system
+  const result = nutreimDB.createUser({
     name,
     email,
-    password,
-    createdAt: new Date().toISOString()
-  }
+    password
+  })
 
-  users.push(newUser)
-  localStorage.setItem('nutreimUsers', JSON.stringify(users))
-  
-  currentUser = newUser
-  localStorage.setItem('nutreimUser', JSON.stringify(newUser))
-  updateUIForLoggedUser()
-  
-  showMessage(`Conta criada com sucesso! Bem-vindo, ${name}!`, 'success')
-  
-  // Switch to home section
-  setTimeout(() => {
-    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'))
-    document.getElementById('home').classList.add('active')
-  }, 1500)
+  if (result.success) {
+    currentUser = result.user
+    localStorage.setItem('nutreimUser', JSON.stringify(result.user))
+    updateUIForLoggedUser()
+    
+    const firstName = name.split(' ')[0]
+    showMessage(`🎉 Conta criada com sucesso! Bem-vindo ao Nutrein, ${firstName}!`, 'success')
+    
+    // Switch to home section with navigation reset
+    setTimeout(() => {
+      document.querySelectorAll('.section').forEach(section => section.classList.remove('active'))
+      document.getElementById('home').classList.add('active')
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'))
+      document.querySelector('[data-section="home"]').classList.add('active')
+    }, 1500)
+  } else {
+    if (result.error === 'Email já cadastrado') {
+      showFieldError('registerEmailError', 'Este e-mail já está cadastrado')
+    } else {
+      showMessage(result.error || 'Erro ao criar conta', 'error')
+    }
+  }
 }
 
 function setupRealTimeValidation() {
@@ -768,3 +1137,4 @@ function handleRegister() {
     }, 1500)
   }, 1200)
 }
+ 
