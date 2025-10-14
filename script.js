@@ -8,6 +8,41 @@ const professionals = [
     description: "Especialista em nutrição esportiva e emagrecimento saudável",
   },
   {
+    name: "Dra. Anna jorgia",
+    specialty: "Fisioterapeuta",
+    experience: "4 anos",
+    rating: 4.8,
+    description: "Especialista em reabilitação física e prevenção de lesões",
+  },
+  {
+  name: "Dr. Rafael Monteiro",
+  specialty: "Masoterapeuta",
+  experience: "6 anos",
+  rating: 4.9,
+  description: "Especialista em técnicas de relaxamento e alívio muscular, promovendo equilíbrio e bem-estar físico."
+},
+{
+  name: "Dra. Camila Nogueira",
+  specialty: "Psicóloga",
+  experience: "5 anos",
+  rating: 4.8,
+  description: "Especialista em saúde emocional e autocuidado, ajudando pacientes a alcançarem equilíbrio mental e qualidade de vida."
+},
+{
+  name: "Dr. Lucas Almeida",
+  specialty: "Ortopedista",
+  experience: "8 anos",
+  rating: 4.9,
+  description: "Especialista em diagnóstico e tratamento de lesões musculoesqueléticas, focado na recuperação funcional e no movimento sem dor."
+},
+{
+  name: "Dra. Marina Torres",
+  specialty: "Masoterapeuta",
+  experience: "3 anos",
+  rating: 4.7,
+  description: "Especialista em massagens terapêuticas e esportivas, unindo técnica e sensibilidade para restaurar o bem-estar corporal."
+},
+  {
     name: "Marcus David",
     specialty: "Treinador de Futebol/Futsal",
     experience: "12 anos",
